@@ -55,13 +55,20 @@ mcp-directory/
 
 For the playground, `transport` can be `sse` or `streamable-http` with a public `playgroundUrl`. `stdio` servers show install instructions instead of a live button.
 
-## Build order (suggested for AI implementation)
+## Status: v1 built and tested
 
-1. **Catalog + listing UI** — render `data/servers.json` as searchable cards (no playground yet)
-2. **Server detail pages** — `/server/[id]` with install instructions per transport type
-3. **Playground v1** — `Playground.tsx`: connect to SSE endpoint → `list_tools` → render tool schemas → `call_tool` with JSON arg editor → show results
-4. **Submission flow** — "Add your server" form that opens a GitHub PR against `data/servers.json`
-5. **Polish** — categories, sorting by stars, dark mode
+The full app is implemented, typechecked, and covered by tests (`npm test` — 19/19 passing), and the production build is verified:
+
+- **Catalog** (`data/servers.json`) — 15 real MCP servers with validated schema (kebab-case ids, transport rules enforced)
+- **Library** (`lib/`) — `servers.ts` (load/validate/search/filter/install-instructions), `mcp-client.ts` (browser MCP client: connect → list tools → call tool, over SSE or Streamable HTTP)
+- **UI** — searchable/filterable directory homepage, 15 statically-generated server detail pages, each with install instructions
+- **Playground** — every detail page embeds the live playground: paste any SSE/Streamable-HTTP endpoint, list its tools, inspect schemas, call tools with a JSON editor, see results. Calls go straight from the browser to the server — nothing passes through this site.
+
+Verified: `next build` succeeds (15 static detail pages); production server smoke-tested (homepage, detail page, filters all render); MCP client tested over a real in-memory MCP protocol pair (list + call + error paths).
+
+Tests: `npm test` · Typecheck: `npx tsc --noEmit` · Build: `npm run build`
+
+Note: the seed catalog intentionally has no `playgroundUrl` values — the well-known public servers are stdio-only. The playground accepts any user-provided HTTP endpoint, which is the honest v1.
 
 ## Tech stack
 
@@ -81,3 +88,4 @@ PRs welcome — especially new server listings. Add your server to `data/servers
 ## License
 
 MIT
+
